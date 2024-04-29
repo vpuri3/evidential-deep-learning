@@ -172,7 +172,7 @@ def experiment1():
     fig, ax = plt.subplots(ncols = 2, nrows = 3, figsize = (12, 8))
 
     for i in range(3):
-        ax[i,0].set_ylabel(f"Case {i+1}")
+        ax[i,0].set_ylabel(f"Case {i+1}\n f(x)")
         ax[i,1].set_ylabel("std. dev")
 
     ax[0,0].set_title("Prediction")
@@ -184,11 +184,11 @@ def experiment1():
     #========================#
     ax[0,0].scatter(_X1, _y1, c = "black", s = 1, label = "Data")
     ax[0,0].plot(X1_, y1_, c = "red", linewidth = 3, label = "True function")
-    ax[0,0].plot(X1_, y_G1, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[0,0].plot(X1_, y_G1, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[0,0].plot(X1_, y_E1, c = "blue" , linewidth = 3, label = "Evidential regression")
     ax[0,0].legend(loc = "upper left")
 
-    ax[0,1].plot(X1_, s_G1, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[0,1].plot(X1_, s_G1, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[0,1].plot(X1_, s_E1, c = "blue" , linewidth = 3, label = "Evidential regression")
     ax[0,1].plot(X1_, ss1 , c = "black" , linewidth = 3, label = "True std. dev", linestyle = "--")
     ax[0,1].legend()
@@ -196,11 +196,11 @@ def experiment1():
     #========================#
     ax[1,0].scatter(_X2, _y2, c = "black", s = 1, label = "Data")
     ax[1,0].plot(X2_, y2_, c = "red", linewidth = 3, label = "True function")
-    ax[1,0].plot(X2_, y_G2, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[1,0].plot(X2_, y_G2, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[1,0].plot(X2_, y_E2, c = "blue" , linewidth = 3, label = "Evidential regression")
     # ax[1,0].legend(loc = "upper left")
 
-    ax[1,1].plot(X2_, s_G2, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[1,1].plot(X2_, s_G2, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[1,1].plot(X2_, s_E2, c = "blue" , linewidth = 3, label = "Evidential regression")
     ax[1,1].plot(X2_, ss2 , c = "black" , linewidth = 3, label = "True std. dev", linestyle = "--")
 
@@ -209,11 +209,11 @@ def experiment1():
     #========================#
     ax[2,0].scatter(_X3, _y3, c = "black", s = 1, label = "Data")
     ax[2,0].plot(X3_, y3_, c = "red", linewidth = 3, label = "True function")
-    ax[2,0].plot(X3_, y_G3, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[2,0].plot(X3_, y_G3, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[2,0].plot(X3_, y_E3, c = "blue" , linewidth = 3, label = "Evidential regression")
     # ax[2,0].legend(loc = "upper left")
 
-    ax[2,1].plot(X3_, s_G3, c = "brown", linewidth = 3, label = "Gaussian likelihood")
+    ax[2,1].plot(X3_, s_G3, c = "brown", linewidth = 3, label = "Gaussian MLE")
     ax[2,1].plot(X3_, s_E3, c = "blue" , linewidth = 3, label = "Evidential regression")
     ax[2,1].plot(X3_, ss3 , c = "black" , linewidth = 3, label = "True std. dev", linestyle = "--")
     # ax[2,1].legend()
@@ -336,7 +336,7 @@ def experiment2b():
     fig, ax = plt.subplots(ncols = 2, nrows = 3, figsize = (12, 8))
 
     for i in range(3):
-        ax[i,0].set_ylabel(f"Case {i+1}")
+        ax[i,0].set_ylabel(f"Case {i+1}\n f(x)")
         ax[i,1].set_ylabel("Var")
         for j in range(2):
             ax[i, j].axvspan(1, 1.5, alpha = 0.25, color = "gray")
@@ -404,147 +404,147 @@ from sklearn.model_selection import train_test_split
 def experiment3():
 # if __name__ == "__main__":
 
-    # HOUSING
-    housing = fetch_california_housing()
-    
-    # YACHT
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data"
-    column_names = ['Longitudinal Position', 'Prismatic Coefficient', 'Length-displacement Ratio','Beam-draught Ratio', 'Length-beam Ratio', 'Froude Number', 'Residuary Resistance']
-    yacht = pd.read_csv(url, names=column_names, delim_whitespace=True)
-    
-    # WINE
-    red_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", sep=';')
-    white_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", sep=';')
-    wine = pd.concat([red_wine_data, white_wine_data], ignore_index=True)
-    
-    # HEART
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
-    column_names = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"]
-    heart = pd.read_csv(url, names=column_names, na_values="?")
-    heart.dropna(inplace=True)
-
-    ##################
-    # choose dataset
-    ##################
-
-    # Choose dataset
-    X1, y1 = np.array(housing.data)     , np.array(housing.target)
-    X2, y2 = np.array(yacht.iloc[:,:-1]), np.array(yacht.iloc[:, -1].astype(float))
-    X3, y3 = np.array(wine.iloc[:,:-1] ), np.array(wine.iloc[:, -1].astype(float))
-    X4, y4 = np.array(heart.iloc[:,:-1]), np.array(heart.iloc[:, -1].astype(float))
-    
-    # Normalize
-    X1 = StandardScaler().fit_transform(X1)
-    X2 = StandardScaler().fit_transform(X2)
-    X3 = StandardScaler().fit_transform(X3)
-    
-    y1 = StandardScaler().fit_transform(y1.reshape(-1,1))
-    y2 = StandardScaler().fit_transform(y2.reshape(-1,1))
-    y3 = StandardScaler().fit_transform(y3.reshape(-1,1))
-    y4 = StandardScaler().fit_transform(y4.reshape(-1,1))
-    
-    _X1, X1_, _y1, y1_ = train_test_split(X1, y1, test_size=0.2, random_state=42)
-    _X2, X2_, _y2, y2_ = train_test_split(X2, y2, test_size=0.2, random_state=42)
-    _X3, X3_, _y3, y3_ = train_test_split(X3, y3, test_size=0.2, random_state=42)
-    _X4, X4_, _y4, y4_ = train_test_split(X4, y4, test_size=0.2, random_state=42)
-
-    ##################
-    # choose dataset
-    ##################
-
-    H = 4
-    n_est = 100
-    depth = 10
-    
-    # TRAIN
-    model_S1 = train_SB(_X1, _y1, H)
-    model_S2 = train_SB(_X2, _y2, H, batch_size=32)
-    model_S3 = train_SB(_X3, _y3, H)
-    model_S4 = train_SB(_X4, _y4, H, batch_size=32)
-    
-    model_G1 = train_GL(_X1, _y1, H)
-    model_G2 = train_GL(_X2, _y2, H, batch_size=32)
-    model_G3 = train_GL(_X3, _y3, H)
-    model_G4 = train_GL(_X4, _y4, H, batch_size=32)
-    
-    model_R1 = train_RF(_X1, _y1, n_est, depth)
-    model_R2 = train_RF(_X2, _y2, n_est, depth)
-    model_R3 = train_RF(_X3, _y3, n_est, depth)
-    model_R4 = train_RF(_X4, _y4, n_est, depth)
-
-    model_E1 = train_EV(_X1, _y1, H)
-    model_E2 = train_EV(_X2, _y2, H, batch_size=32)
-    model_E3 = train_EV(_X3, _y3, H)
-    model_E4 = train_EV(_X4, _y4, H, batch_size=32)
-    
-    # EVALUATE
-    y_S1, v_S1 = predict_SB(model_S1, X1)
-    y_S2, v_S2 = predict_SB(model_S2, X2)
-    y_S3, v_S3 = predict_SB(model_S3, X3)
-    y_S4, v_S4 = predict_SB(model_S4, X4)
-    
-    y_G1, s_G1 = predict_GL(model_G1, X1)
-    y_G2, s_G2 = predict_GL(model_G2, X2)
-    y_G3, s_G3 = predict_GL(model_G3, X3)
-    y_G4, s_G4 = predict_GL(model_G4, X4)
-    
-    y_R1, v_R1 = predict_RF(model_R1, X1)
-    y_R2, v_R2 = predict_RF(model_R2, X2)
-    y_R3, v_R3 = predict_RF(model_R3, X3)
-    y_R4, v_R4 = predict_RF(model_R4, X4)
-    
-    y_E1, s_E1, v_E1 = predict_EV(model_E1, X1)
-    y_E2, s_E2, v_E2 = predict_EV(model_E2, X2)
-    y_E3, s_E3, v_E3 = predict_EV(model_E3, X3)
-    y_E4, s_E4, v_E4 = predict_EV(model_E4, X4)
-    
-    # model fit
-    MSE_S1 = edl.losses.MSE(y_S1, y1)
-    MSE_S2 = edl.losses.MSE(y_S2, y2)
-    MSE_S3 = edl.losses.MSE(y_S3, y3)
-    MSE_S4 = edl.losses.MSE(y_S4, y4)
-    
-    MSE_G1 = edl.losses.MSE(y_G1, y1)
-    MSE_G2 = edl.losses.MSE(y_G2, y2)
-    MSE_G3 = edl.losses.MSE(y_G3, y3)
-    MSE_G4 = edl.losses.MSE(y_G4, y4)
-    
-    MSE_R1 = edl.losses.MSE(y_R1, y1)
-    MSE_R2 = edl.losses.MSE(y_R2, y2)
-    MSE_R3 = edl.losses.MSE(y_R3, y3)
-    MSE_R4 = edl.losses.MSE(y_R4, y4)
-    
-    MSE_E1 = edl.losses.MSE(y_E1, y1)
-    MSE_E2 = edl.losses.MSE(y_E2, y2)
-    MSE_E3 = edl.losses.MSE(y_E3, y3)
-    MSE_E4 = edl.losses.MSE(y_E4, y4)
-    
-    # convert s
-    s_G1 = np.array(s_G1).reshape(-1)
-    s_G2 = np.array(s_G2).reshape(-1)
-    s_G3 = np.array(s_G3).reshape(-1)
-    s_G4 = np.array(s_G4).reshape(-1)
-    
-    s_E1 = np.array(s_E1).reshape(-1)
-    s_E2 = np.array(s_E2).reshape(-1)
-    s_E3 = np.array(s_E3).reshape(-1)
-    s_E4 = np.array(s_E4).reshape(-1)
-    
-    # convert v
-    v_S1 = np.array(v_S1).reshape(-1)
-    v_S2 = np.array(v_S2).reshape(-1)
-    v_S3 = np.array(v_S3).reshape(-1)
-    v_S4 = np.array(v_S4).reshape(-1)
-    
-    v_R1 = np.array(v_R1).reshape(-1)
-    v_R2 = np.array(v_R2).reshape(-1)
-    v_R3 = np.array(v_R3).reshape(-1)
-    v_R4 = np.array(v_R4).reshape(-1)
-    
-    v_E1 = np.array(v_E1).reshape(-1)
-    v_E2 = np.array(v_E2).reshape(-1)
-    v_E3 = np.array(v_E3).reshape(-1)
-    v_E4 = np.array(v_E4).reshape(-1)
+    # # HOUSING
+    # housing = fetch_california_housing()
+    #
+    # # YACHT
+    # url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data"
+    # column_names = ['Longitudinal Position', 'Prismatic Coefficient', 'Length-displacement Ratio','Beam-draught Ratio', 'Length-beam Ratio', 'Froude Number', 'Residuary Resistance']
+    # yacht = pd.read_csv(url, names=column_names, delim_whitespace=True)
+    #
+    # # WINE
+    # red_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", sep=';')
+    # white_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", sep=';')
+    # wine = pd.concat([red_wine_data, white_wine_data], ignore_index=True)
+    #
+    # # HEART
+    # url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
+    # column_names = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"]
+    # heart = pd.read_csv(url, names=column_names, na_values="?")
+    # heart.dropna(inplace=True)
+    #
+    # ##################
+    # # choose dataset
+    # ##################
+    #
+    # # Choose dataset
+    # X1, y1 = np.array(housing.data)     , np.array(housing.target)
+    # X2, y2 = np.array(yacht.iloc[:,:-1]), np.array(yacht.iloc[:, -1].astype(float))
+    # X3, y3 = np.array(wine.iloc[:,:-1] ), np.array(wine.iloc[:, -1].astype(float))
+    # X4, y4 = np.array(heart.iloc[:,:-1]), np.array(heart.iloc[:, -1].astype(float))
+    #
+    # # Normalize
+    # X1 = StandardScaler().fit_transform(X1)
+    # X2 = StandardScaler().fit_transform(X2)
+    # X3 = StandardScaler().fit_transform(X3)
+    #
+    # y1 = StandardScaler().fit_transform(y1.reshape(-1,1))
+    # y2 = StandardScaler().fit_transform(y2.reshape(-1,1))
+    # y3 = StandardScaler().fit_transform(y3.reshape(-1,1))
+    # y4 = StandardScaler().fit_transform(y4.reshape(-1,1))
+    #
+    # _X1, X1_, _y1, y1_ = train_test_split(X1, y1, test_size=0.2, random_state=42)
+    # _X2, X2_, _y2, y2_ = train_test_split(X2, y2, test_size=0.2, random_state=42)
+    # _X3, X3_, _y3, y3_ = train_test_split(X3, y3, test_size=0.2, random_state=42)
+    # _X4, X4_, _y4, y4_ = train_test_split(X4, y4, test_size=0.2, random_state=42)
+    #
+    # ##################
+    # # choose dataset
+    # ##################
+    #
+    # H = 4
+    # n_est = 100
+    # depth = 10
+    #
+    # # TRAIN
+    # model_S1 = train_SB(_X1, _y1, H)
+    # model_S2 = train_SB(_X2, _y2, H, batch_size=32)
+    # model_S3 = train_SB(_X3, _y3, H)
+    # model_S4 = train_SB(_X4, _y4, H, batch_size=32)
+    #
+    # model_G1 = train_GL(_X1, _y1, H)
+    # model_G2 = train_GL(_X2, _y2, H, batch_size=32)
+    # model_G3 = train_GL(_X3, _y3, H)
+    # model_G4 = train_GL(_X4, _y4, H, batch_size=32)
+    #
+    # model_R1 = train_RF(_X1, _y1, n_est, depth)
+    # model_R2 = train_RF(_X2, _y2, n_est, depth)
+    # model_R3 = train_RF(_X3, _y3, n_est, depth)
+    # model_R4 = train_RF(_X4, _y4, n_est, depth)
+    #
+    # model_E1 = train_EV(_X1, _y1, H)
+    # model_E2 = train_EV(_X2, _y2, H, batch_size=32)
+    # model_E3 = train_EV(_X3, _y3, H)
+    # model_E4 = train_EV(_X4, _y4, H, batch_size=32)
+    #
+    # # EVALUATE
+    # y_S1, v_S1 = predict_SB(model_S1, X1)
+    # y_S2, v_S2 = predict_SB(model_S2, X2)
+    # y_S3, v_S3 = predict_SB(model_S3, X3)
+    # y_S4, v_S4 = predict_SB(model_S4, X4)
+    #
+    # y_G1, s_G1 = predict_GL(model_G1, X1)
+    # y_G2, s_G2 = predict_GL(model_G2, X2)
+    # y_G3, s_G3 = predict_GL(model_G3, X3)
+    # y_G4, s_G4 = predict_GL(model_G4, X4)
+    #
+    # y_R1, v_R1 = predict_RF(model_R1, X1)
+    # y_R2, v_R2 = predict_RF(model_R2, X2)
+    # y_R3, v_R3 = predict_RF(model_R3, X3)
+    # y_R4, v_R4 = predict_RF(model_R4, X4)
+    #
+    # y_E1, s_E1, v_E1 = predict_EV(model_E1, X1)
+    # y_E2, s_E2, v_E2 = predict_EV(model_E2, X2)
+    # y_E3, s_E3, v_E3 = predict_EV(model_E3, X3)
+    # y_E4, s_E4, v_E4 = predict_EV(model_E4, X4)
+    #
+    # # model fit
+    # MSE_S1 = edl.losses.MSE(y_S1, y1)
+    # MSE_S2 = edl.losses.MSE(y_S2, y2)
+    # MSE_S3 = edl.losses.MSE(y_S3, y3)
+    # MSE_S4 = edl.losses.MSE(y_S4, y4)
+    #
+    # MSE_G1 = edl.losses.MSE(y_G1, y1)
+    # MSE_G2 = edl.losses.MSE(y_G2, y2)
+    # MSE_G3 = edl.losses.MSE(y_G3, y3)
+    # MSE_G4 = edl.losses.MSE(y_G4, y4)
+    #
+    # MSE_R1 = edl.losses.MSE(y_R1, y1)
+    # MSE_R2 = edl.losses.MSE(y_R2, y2)
+    # MSE_R3 = edl.losses.MSE(y_R3, y3)
+    # MSE_R4 = edl.losses.MSE(y_R4, y4)
+    #
+    # MSE_E1 = edl.losses.MSE(y_E1, y1)
+    # MSE_E2 = edl.losses.MSE(y_E2, y2)
+    # MSE_E3 = edl.losses.MSE(y_E3, y3)
+    # MSE_E4 = edl.losses.MSE(y_E4, y4)
+    #
+    # # convert s
+    # s_G1 = np.array(s_G1).reshape(-1)
+    # s_G2 = np.array(s_G2).reshape(-1)
+    # s_G3 = np.array(s_G3).reshape(-1)
+    # s_G4 = np.array(s_G4).reshape(-1)
+    #
+    # s_E1 = np.array(s_E1).reshape(-1)
+    # s_E2 = np.array(s_E2).reshape(-1)
+    # s_E3 = np.array(s_E3).reshape(-1)
+    # s_E4 = np.array(s_E4).reshape(-1)
+    #
+    # # convert v
+    # v_S1 = np.array(v_S1).reshape(-1)
+    # v_S2 = np.array(v_S2).reshape(-1)
+    # v_S3 = np.array(v_S3).reshape(-1)
+    # v_S4 = np.array(v_S4).reshape(-1)
+    #
+    # v_R1 = np.array(v_R1).reshape(-1)
+    # v_R2 = np.array(v_R2).reshape(-1)
+    # v_R3 = np.array(v_R3).reshape(-1)
+    # v_R4 = np.array(v_R4).reshape(-1)
+    #
+    # v_E1 = np.array(v_E1).reshape(-1)
+    # v_E2 = np.array(v_E2).reshape(-1)
+    # v_E3 = np.array(v_E3).reshape(-1)
+    # v_E4 = np.array(v_E4).reshape(-1)
 
     print(f"Dataset 1:")
     print(f"Ensemble, \t Gaussian MLE \t Random Forest \t Evidential Regression")
@@ -584,21 +584,44 @@ def experiment3():
         ax[0,i].set_xlabel("Aleatoric uncertainty (std. dev)")
         ax[1,i].set_xlabel("Epistemic uncertainty (var)")
 
+    ax[0,0].set_ylabel("Ratio of sample")
+    ax[1,0].set_ylabel("Ratio of sample")
+
     s_names = m_names[1], m_names[3]
     v_names = m_names[0], m_names[2], m_names[3]
 
     s_colors = colors[1], colors[3]
     v_colors = colors[0], colors[2], colors[3]
 
-    ax[0,0].hist([s_G1, s_E1], range=(0,1  ), bins=30, color=s_colors, label=s_names, density=True)
-    ax[0,1].hist([s_G2, s_E2], range=(0,0.1), bins=30, color=s_colors, label=s_names, density=True)
-    ax[0,2].hist([s_G3, s_E3], range=(0,1  ), bins=30, color=s_colors, label=s_names, density=True)
-    ax[0,3].hist([s_G4, s_E4], range=(0,1.2), bins=30, color=s_colors, label=s_names, density=True)
+    N1 = len(s_E1)
+    N2 = len(s_E2)
+    N3 = len(s_E3)
+    N4 = len(s_E4)
 
-    ax[1,0].hist([v_S1, v_R1, v_E1], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,1].hist([v_S2, v_R2, v_E2], range=(0, 0.002), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,2].hist([v_S3, v_R3, v_E3], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,3].hist([v_S4, v_R4, v_E4], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
+    # w1 = np.ones_like(s_E1) / len(s_E1)
+    # w2 = np.ones_like(s_E2) / len(s_E2)
+    # w3 = np.ones_like(s_E3) / len(s_E3)
+    # w4 = np.ones_like(s_E4) / len(s_E4)
+
+    w1 = np.ones((N1, 2)) / N1
+    w2 = np.ones((N2, 2)) / N2
+    w3 = np.ones((N3, 2)) / N3
+    w4 = np.ones((N4, 2)) / N4
+
+    ax[0,0].hist([s_G1, s_E1], range=(0,1  ), bins=30, color=s_colors, label=s_names, weights=w1)
+    ax[0,1].hist([s_G2, s_E2], range=(0,0.1), bins=30, color=s_colors, label=s_names, weights=w2)
+    ax[0,2].hist([s_G3, s_E3], range=(0,1  ), bins=30, color=s_colors, label=s_names, weights=w3)
+    ax[0,3].hist([s_G4, s_E4], range=(0,1.2), bins=30, color=s_colors, label=s_names, weights=w4)
+
+    w1 = np.ones((N1, 3)) / N1
+    w2 = np.ones((N2, 3)) / N2
+    w3 = np.ones((N3, 3)) / N3
+    w4 = np.ones((N4, 3)) / N4
+
+    ax[1,0].hist([v_S1, v_R1, v_E1], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, weights=w1)
+    ax[1,1].hist([v_S2, v_R2, v_E2], range=(0, 0.002), bins=30, color=v_colors, label=v_names, weights=w2)
+    ax[1,2].hist([v_S3, v_R3, v_E3], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, weights=w3)
+    ax[1,3].hist([v_S4, v_R4, v_E4], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, weights=w4)
 
     ax[0,0].legend(loc = "upper right")
     ax[1,0].legend(loc = "upper right")
@@ -612,7 +635,7 @@ def experiment3():
 
 ##################
 if __name__ == "__main__":
-    experiment1()
+    # experiment1()
     # experiment2a()
     # experiment2b()
-    # experiment3()
+    experiment3()
