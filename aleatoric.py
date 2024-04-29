@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # Determinsitc
 ##################
 
-def train_DN(X_train, y_train, H, W=64, act="relu"):
+def train_DN(X_train, y_train, H, W=64, act="relu", batch_size=100):
     hidden = [tf.keras.layers.Dense(W, activation = act) for _ in range(H)]
     model = tf.keras.Sequential([
         *hidden,
@@ -20,7 +20,7 @@ def train_DN(X_train, y_train, H, W=64, act="relu"):
     ])
 
     model.compile(optimizer=tf.keras.optimizers.Adam(5e-4), loss=edl.losses.MSE)
-    model.fit(X_train, y_train, batch_size=100, epochs=500)
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=500)
     return model
 
 def predict_DN(model, X):
@@ -30,9 +30,9 @@ def predict_DN(model, X):
 # Ensemble
 ##################
 
-def train_SB(X_train, y_train, H, W=64, act="relu", E=5):
+def train_SB(X_train, y_train, H, W=64, act="relu", E=5, batch_size=100):
     models = [
-        train_DN(X_train, y_train, H, W, act) for _ in range(E)
+        train_DN(X_train, y_train, H, W, act, batch_size) for _ in range(E)
     ]
     return models
 
@@ -53,7 +53,7 @@ def GL_loss(y, out):
     mu, sigma = tf.split(out, 2, axis=-1)
     return edl.losses.Gaussian_NLL(y, mu, sigma)
 
-def train_GL(X_train, y_train, H, W = 64, act = "relu"):
+def train_GL(X_train, y_train, H, W = 64, act = "relu", batch_size=100):
 
     hidden = [tf.keras.layers.Dense(W, activation = act) for _ in range(H)]
     model = tf.keras.Sequential([
@@ -62,7 +62,7 @@ def train_GL(X_train, y_train, H, W = 64, act = "relu"):
     ])
 
     model.compile(optimizer=tf.keras.optimizers.Adam(5e-4), loss=GL_loss)
-    model.fit(X_train, y_train, batch_size=100, epochs=500)
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=500)
     return model
 
 def predict_GL(model, X):
@@ -73,10 +73,12 @@ def predict_GL(model, X):
 # EV
 ##################
 
-def EV_loss(y, out):
-    return edl.losses.EvidentialRegression(y, out, coeff=1e-5)
+def train_EV(X_train, y_train, H, W = 64, act = "relu", batch_size=100,
+             coeff=1e-5):
 
-def train_EV(X_train, y_train, H, W = 64, act = "relu"):
+    def EV_loss(y, out):
+        return edl.losses.EvidentialRegression(y, out, coeff=coeff)
+
     hidden = [tf.keras.layers.Dense(W, activation = act) for _ in range(H)]
     model = tf.keras.Sequential([
         *hidden,
@@ -84,7 +86,7 @@ def train_EV(X_train, y_train, H, W = 64, act = "relu"):
     ])
 
     model.compile(optimizer=tf.keras.optimizers.Adam(5e-4), loss=EV_loss)
-    model.fit(X_train, y_train, batch_size=100, epochs=500)
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=500)
     return model
 
 def predict_EV(model, X):
@@ -154,9 +156,9 @@ def experiment1():
     model_G3 = train_GL(_X3, _y3, H)
 
     # train evidential regression models
-    model_E1 = train_EV(_X1, _y1, H)
-    model_E2 = train_EV(_X2, _y2, H)
-    model_E3 = train_EV(_X3, _y3, H)
+    model_E1 = train_EV(_X1, _y1, H, coeff=1e-1)
+    model_E2 = train_EV(_X2, _y2, H, coeff=1e-1)
+    model_E3 = train_EV(_X3, _y3, H, coeff=1e-1)
 
     # predict GL
     y_G1, s_G1 = predict_GL(model_G1, X1_)
@@ -402,49 +404,49 @@ from sklearn.model_selection import train_test_split
 def experiment3():
 # if __name__ == "__main__":
 
-    # # HOUSING
-    # housing = fetch_california_housing()
-    #
-    # # YACHT
-    # url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data"
-    # column_names = ['Longitudinal Position', 'Prismatic Coefficient', 'Length-displacement Ratio','Beam-draught Ratio', 'Length-beam Ratio', 'Froude Number', 'Residuary Resistance']
-    # yacht = pd.read_csv(url, names=column_names, delim_whitespace=True)
-    #
-    # # WINE
-    # red_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", sep=';')
-    # white_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", sep=';')
-    # wine = pd.concat([red_wine_data, white_wine_data], ignore_index=True)
-    #
-    # # HEART
-    # url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
-    # column_names = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"]
-    # heart = pd.read_csv(url, names=column_names, na_values="?")
-    # heart.dropna(inplace=True)
+    # HOUSING
+    housing = fetch_california_housing()
+    
+    # YACHT
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data"
+    column_names = ['Longitudinal Position', 'Prismatic Coefficient', 'Length-displacement Ratio','Beam-draught Ratio', 'Length-beam Ratio', 'Froude Number', 'Residuary Resistance']
+    yacht = pd.read_csv(url, names=column_names, delim_whitespace=True)
+    
+    # WINE
+    red_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", sep=';')
+    white_wine_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", sep=';')
+    wine = pd.concat([red_wine_data, white_wine_data], ignore_index=True)
+    
+    # HEART
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
+    column_names = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"]
+    heart = pd.read_csv(url, names=column_names, na_values="?")
+    heart.dropna(inplace=True)
 
     ##################
     # choose dataset
     ##################
 
-    # # Choose dataset
-    # X1, y1 = np.array(housing.data)     , np.array(housing.target)
-    # X2, y2 = np.array(yacht.iloc[:,:-1]), np.array(yacht.iloc[:, -1].astype(float))
-    # X3, y3 = np.array(wine.iloc[:,:-1] ), np.array(wine.iloc[:, -1].astype(float))
-    # X4, y4 = np.array(heart.iloc[:,:-1]), np.array(heart.iloc[:, -1].astype(float))
-    #
-    # # Normalize
-    # X1 = StandardScaler().fit_transform(X1)
-    # X2 = StandardScaler().fit_transform(X2)
-    # X3 = StandardScaler().fit_transform(X3)
-    #
-    # y1 = StandardScaler().fit_transform(y1.reshape(-1,1))
-    # y2 = StandardScaler().fit_transform(y2.reshape(-1,1))
-    # y3 = StandardScaler().fit_transform(y3.reshape(-1,1))
-    # y4 = StandardScaler().fit_transform(y4.reshape(-1,1))
-    #
-    # _X1, X1_, _y1, y1_ = train_test_split(X1, y1, test_size=0.2, random_state=42)
-    # _X2, X2_, _y2, y2_ = train_test_split(X2, y2, test_size=0.2, random_state=42)
-    # _X3, X3_, _y3, y3_ = train_test_split(X3, y3, test_size=0.2, random_state=42)
-    # _X4, X4_, _y4, y4_ = train_test_split(X4, y4, test_size=0.2, random_state=42)
+    # Choose dataset
+    X1, y1 = np.array(housing.data)     , np.array(housing.target)
+    X2, y2 = np.array(yacht.iloc[:,:-1]), np.array(yacht.iloc[:, -1].astype(float))
+    X3, y3 = np.array(wine.iloc[:,:-1] ), np.array(wine.iloc[:, -1].astype(float))
+    X4, y4 = np.array(heart.iloc[:,:-1]), np.array(heart.iloc[:, -1].astype(float))
+    
+    # Normalize
+    X1 = StandardScaler().fit_transform(X1)
+    X2 = StandardScaler().fit_transform(X2)
+    X3 = StandardScaler().fit_transform(X3)
+    
+    y1 = StandardScaler().fit_transform(y1.reshape(-1,1))
+    y2 = StandardScaler().fit_transform(y2.reshape(-1,1))
+    y3 = StandardScaler().fit_transform(y3.reshape(-1,1))
+    y4 = StandardScaler().fit_transform(y4.reshape(-1,1))
+    
+    _X1, X1_, _y1, y1_ = train_test_split(X1, y1, test_size=0.2, random_state=42)
+    _X2, X2_, _y2, y2_ = train_test_split(X2, y2, test_size=0.2, random_state=42)
+    _X3, X3_, _y3, y3_ = train_test_split(X3, y3, test_size=0.2, random_state=42)
+    _X4, X4_, _y4, y4_ = train_test_split(X4, y4, test_size=0.2, random_state=42)
 
     ##################
     # choose dataset
@@ -454,27 +456,27 @@ def experiment3():
     n_est = 100
     depth = 10
     
-    # # TRAIN
-    # model_S1 = train_SB(_X1, _y1, H)
-    # model_S2 = train_SB(_X2, _y2, H)
-    # model_S3 = train_SB(_X3, _y3, H)
-    # model_S4 = train_SB(_X4, _y4, H)
-    #
-    # model_G1 = train_GL(_X1, _y1, H)
-    # model_G2 = train_GL(_X2, _y2, H)
-    # model_G3 = train_GL(_X3, _y3, H)
-    # model_G4 = train_GL(_X4, _y4, H)
-    #
-    # model_R1 = train_RF(_X1, _y1, n_est, depth)
-    # model_R2 = train_RF(_X2, _y2, n_est, depth)
-    # model_R3 = train_RF(_X3, _y3, n_est, depth)
-    # model_R4 = train_RF(_X4, _y4, n_est, depth)
-    #
-    # model_E1 = train_EV(_X1, _y1, H)
-    # model_E2 = train_EV(_X2, _y2, H)
-    # model_E3 = train_EV(_X3, _y3, H)
-    # model_E4 = train_EV(_X4, _y4, H)
+    # TRAIN
+    model_S1 = train_SB(_X1, _y1, H)
+    model_S2 = train_SB(_X2, _y2, H, batch_size=32)
+    model_S3 = train_SB(_X3, _y3, H)
+    model_S4 = train_SB(_X4, _y4, H, batch_size=32)
+    
+    model_G1 = train_GL(_X1, _y1, H)
+    model_G2 = train_GL(_X2, _y2, H, batch_size=32)
+    model_G3 = train_GL(_X3, _y3, H)
+    model_G4 = train_GL(_X4, _y4, H, batch_size=32)
+    
+    model_R1 = train_RF(_X1, _y1, n_est, depth)
+    model_R2 = train_RF(_X2, _y2, n_est, depth)
+    model_R3 = train_RF(_X3, _y3, n_est, depth)
+    model_R4 = train_RF(_X4, _y4, n_est, depth)
 
+    model_E1 = train_EV(_X1, _y1, H)
+    model_E2 = train_EV(_X2, _y2, H, batch_size=32)
+    model_E3 = train_EV(_X3, _y3, H)
+    model_E4 = train_EV(_X4, _y4, H, batch_size=32)
+    
     # EVALUATE
     y_S1, v_S1 = predict_SB(model_S1, X1)
     y_S2, v_S2 = predict_SB(model_S2, X2)
@@ -495,7 +497,7 @@ def experiment3():
     y_E2, s_E2, v_E2 = predict_EV(model_E2, X2)
     y_E3, s_E3, v_E3 = predict_EV(model_E3, X3)
     y_E4, s_E4, v_E4 = predict_EV(model_E4, X4)
-
+    
     # model fit
     MSE_S1 = edl.losses.MSE(y_S1, y1)
     MSE_S2 = edl.losses.MSE(y_S2, y2)
@@ -516,46 +518,71 @@ def experiment3():
     MSE_E2 = edl.losses.MSE(y_E2, y2)
     MSE_E3 = edl.losses.MSE(y_E3, y3)
     MSE_E4 = edl.losses.MSE(y_E4, y4)
-
+    
     # convert s
     s_G1 = np.array(s_G1).reshape(-1)
     s_G2 = np.array(s_G2).reshape(-1)
     s_G3 = np.array(s_G3).reshape(-1)
     s_G4 = np.array(s_G4).reshape(-1)
-
+    
     s_E1 = np.array(s_E1).reshape(-1)
     s_E2 = np.array(s_E2).reshape(-1)
     s_E3 = np.array(s_E3).reshape(-1)
     s_E4 = np.array(s_E4).reshape(-1)
-
+    
     # convert v
     v_S1 = np.array(v_S1).reshape(-1)
     v_S2 = np.array(v_S2).reshape(-1)
     v_S3 = np.array(v_S3).reshape(-1)
     v_S4 = np.array(v_S4).reshape(-1)
-
+    
     v_R1 = np.array(v_R1).reshape(-1)
     v_R2 = np.array(v_R2).reshape(-1)
     v_R3 = np.array(v_R3).reshape(-1)
     v_R4 = np.array(v_R4).reshape(-1)
-
+    
     v_E1 = np.array(v_E1).reshape(-1)
     v_E2 = np.array(v_E2).reshape(-1)
     v_E3 = np.array(v_E3).reshape(-1)
     v_E4 = np.array(v_E4).reshape(-1)
 
+    print(f"Dataset 1:")
+    print(f"Ensemble, \t Gaussian MLE \t Random Forest \t Evidential Regression")
+    print(f"{MSE_S1}, \t {MSE_G1}, \t {MSE_R1}, \t {MSE_E1}")
+    print(f"{0}, \t {np.mean(s_G1)}, \t {0}, \t {np.mean(s_E1)}")
+    print(f"{np.mean(v_S1)}, \t {0}, \t {np.mean(v_R1)}, \t {np.mean(v_E1)}")
+
+    print(f"Dataset 2:")
+    print(f"Ensemble, \t Gaussian MLE \t Random Forest \t Evidential Regression")
+    print(f"{MSE_S1}, \t {MSE_G1}, \t {MSE_R1}, \t {MSE_E1}")
+    print(f"{0}, \t {np.mean(s_G2)}, \t {0}, \t {np.mean(s_E2)}")
+    print(f"{np.mean(v_S2)}, \t {0}, \t {np.mean(v_R2)}, \t {np.mean(v_E2)}")
+
+    print(f"Dataset 3:")
+    print(f"Ensemble, \t Gaussian MLE \t Random Forest \t Evidential Regression")
+    print(f"{MSE_S1}, \t {MSE_G1}, \t {MSE_R1}, \t {MSE_E1}")
+    print(f"{0}, \t {np.mean(s_G3)}, \t {0}, \t {np.mean(s_E3)}")
+    print(f"{np.mean(v_S3)}, \t {0}, \t {np.mean(v_R3)}, \t {np.mean(v_E3)}")
+
+    print(f"Dataset 4:")
+    print(f"Ensemble, \t Gaussian MLE \t Random Forest \t Evidential Regression")
+    print(f"{MSE_S4}, \t {MSE_G4}, \t {MSE_R4}, \t {MSE_E4}")
+    print(f"{0}, \t {np.mean(s_G4)}, \t {0}, \t {np.mean(s_E4)}")
+    print(f"{np.mean(v_S4)}, \t {0}, \t {np.mean(v_R4)}, \t {np.mean(v_E4)}")
+
     # FIGURE
     fig, ax = plt.subplots(ncols = 4, nrows = 2, figsize = (12, 8))
 
-    d_names = ["California Housing", "Yacht", "Wine", "Heart disease"]
+    d_names = ["California housing dataset", "Yacht dataset", "Wine quality dataset", "Heart disease dataset"]
     m_names = ["Deep ensemble", "Gaussian MLE", "Random forest", "Evidential regression"]
-    colors = ['black', 'red', 'blue', 'green']
+    colors = ['red', 'blue', 'green', 'black']
 
     for i in range(4):
         ax[0,i].set_title(d_names[i])
 
-    ax[0,0].set_ylabel("Aleatoric uncertainty (std. dev)")
-    ax[1,0].set_ylabel("Epistemic uncertainty (var)")
+    for i in range(4):
+        ax[0,i].set_xlabel("Aleatoric uncertainty (std. dev)")
+        ax[1,i].set_xlabel("Epistemic uncertainty (var)")
 
     s_names = m_names[1], m_names[3]
     v_names = m_names[0], m_names[2], m_names[3]
@@ -568,10 +595,10 @@ def experiment3():
     ax[0,2].hist([s_G3, s_E3], range=(0,1  ), bins=30, color=s_colors, label=s_names, density=True)
     ax[0,3].hist([s_G4, s_E4], range=(0,1.2), bins=30, color=s_colors, label=s_names, density=True)
 
-    ax[1,0].hist([v_S1, v_R1, v_E1], range=(0, 0.5 ), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,1].hist([v_S2, v_R2, v_E2], range=(0, 0.01), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,2].hist([v_S3, v_R3, v_E3], range=(0, 0.5 ), bins=30, color=v_colors, label=v_names, density=True)
-    ax[1,3].hist([v_S4, v_R4, v_E4], range=(0, 0.5 ), bins=30, color=v_colors, label=v_names, density=True)
+    ax[1,0].hist([v_S1, v_R1, v_E1], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
+    ax[1,1].hist([v_S2, v_R2, v_E2], range=(0, 0.002), bins=30, color=v_colors, label=v_names, density=True)
+    ax[1,2].hist([v_S3, v_R3, v_E3], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
+    ax[1,3].hist([v_S4, v_R4, v_E4], range=(0, 0.5  ), bins=30, color=v_colors, label=v_names, density=True)
 
     ax[0,0].legend(loc = "upper right")
     ax[1,0].legend(loc = "upper right")
@@ -584,8 +611,8 @@ def experiment3():
     return
 
 ##################
-# if __name__ == "__main__":
-#     # experiment1()
-#     # experiment2a()
-#     # experiment2b()
-#     experiment3()
+if __name__ == "__main__":
+    experiment1()
+    # experiment2a()
+    # experiment2b()
+    # experiment3()
