@@ -156,9 +156,9 @@ def experiment1():
     model_G3 = train_GL(_X3, _y3, H)
 
     # train evidential regression models
-    model_E1 = train_EV(_X1, _y1, H, coeff=1e-1)
-    model_E2 = train_EV(_X2, _y2, H, coeff=1e-1)
-    model_E3 = train_EV(_X3, _y3, H, coeff=1e-1)
+    model_E1 = train_EV(_X1, _y1, H, coeff=0e-1)
+    model_E2 = train_EV(_X2, _y2, H, coeff=0e-1)
+    model_E3 = train_EV(_X3, _y3, H, coeff=0e-1)
 
     # predict GL
     y_G1, s_G1 = predict_GL(model_G1, X1_)
